@@ -1,0 +1,25 @@
+{
+  "name": "tetris",
+  "version": "1.0.0",
+  "description": "tetris game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seoulsaram/tetris.git"
+  },
+  "author": "seoulsaram",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seoulsaram/tetris/issues"
+  },
+  "homepage": "https://github.com/seoulsaram/tetris#readme",
+  "dependencies": {
+    "typescript": "^4.6.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.7.0"
+  }
+}
