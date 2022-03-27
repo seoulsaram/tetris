@@ -1,4 +1,5 @@
 import { BLOCKS, ShapeType } from './blocks.js';
+import * as screen from './screen.js';
 
 const movingItem: { type: ShapeType; direction: number; top: number; left: number } = {
   type: 'tree',
@@ -17,7 +18,6 @@ const KEYS = {
 } as const;
 
 const playground = document.querySelector('.playground > ul') as HTMLDivElement;
-const gameText = document.querySelector('.game-text') as HTMLDivElement;
 const scoreDisplay = document.querySelector('.score') as HTMLSpanElement;
 const levelDisplay = document.querySelector('.level') as HTMLSpanElement;
 const restartButton = document.querySelector('.restart') as HTMLDivElement;
@@ -34,12 +34,7 @@ export class Tetris {
   private tempMovingItem: typeof movingItem = { ...movingItem };
 
   constructor() {
-    restartButton.addEventListener('click', () => {
-      playground.innerHTML = '';
-      this.hideGameoverText();
-      this.init();
-    });
-
+    this.restart();
     document.addEventListener('keydown', ({ code }) => {
       switch (code) {
         case KEYS.LEFT:
@@ -70,7 +65,15 @@ export class Tetris {
     this.generateNewBlock();
   }
 
-  prependNewLine() {
+  private restart() {
+    restartButton.addEventListener('click', () => {
+      playground.innerHTML = '';
+      screen.hideGameoverText();
+      this.init();
+    });
+  }
+
+  private prependNewLine() {
     const li = document.createElement('li');
     const ul = document.createElement('ul');
     for (let j = 0; j < this.GAME_COLS; j++) {
@@ -81,45 +84,41 @@ export class Tetris {
     playground.prepend(li);
   }
 
-  renderBlocks(moveType = '') {
-    const { type, direction, top, left } = this.tempMovingItem;
+  renderBlocks(moveType = '', { type, direction, top, left } = this.tempMovingItem) {
     this.deleteBlocksFromPrevPosition(type);
     BLOCKS[type][direction].some((block) => {
       const x = block[0] + left;
       const y = block[1] + top;
       const target = playground.childNodes[y] ? (playground.childNodes[y].childNodes[0].childNodes[x] as HTMLElement) : null;
       const isAvailable = this.checkEmpty(target);
-
       if (isAvailable) {
         target!.classList.add(type, 'moving');
       } else {
         this.tempMovingItem = { ...movingItem };
-        //재귀함수 호출 시 콜스택 맥시멈,exceed 에러가 발생할 수 있음
-        //이벤트 루프 안에 넣지 않고, 테스크 큐에 넣어놨다가 이벤트루프 모두 실행 후 실행될 수 있도록 함
         if (moveType === 'retry') {
-          return;
-          clearInterval(this.downInterval);
-          this.showGameoverText();
+          this.gameOver();
+        } else {
+          setTimeout(() => {
+            this.renderBlocks('retry');
+            if (moveType === 'top') {
+              this.seizeBlock();
+            }
+          }, 0);
         }
-        setTimeout(() => {
-          this.renderBlocks('retry');
-          if (moveType === 'top') {
-            this.seizeBlock();
-          }
-        }, 0);
         return true;
       }
     });
-    movingItem.left = left;
-    movingItem.top = top;
-    movingItem.direction = direction;
+    Object.assign(movingItem, { left, top, direction });
+  }
+
+  private gameOver() {
+    clearInterval(this.downInterval);
+    screen.showGameoverText();
   }
 
   deleteBlocksFromPrevPosition(type: string) {
     const movingBlocks = document.querySelectorAll('.moving');
-    movingBlocks.forEach((moving) => {
-      moving.classList.remove(type, 'moving');
-    });
+    movingBlocks.forEach((moving) => moving.classList.remove(type, 'moving'));
   }
 
   seizeBlock() {
@@ -129,21 +128,6 @@ export class Tetris {
       moving.classList.add('seized');
     });
     this.checkMatch();
-  }
-
-  generateNewBlock() {
-    clearInterval(this.downInterval);
-    this.downInterval = setInterval(() => {
-      this.moveBlock('top', 1);
-    }, this.duration);
-    const blockArray = Object.entries(BLOCKS);
-    const randomIndex = Math.floor(Math.random() * blockArray.length);
-    movingItem.type = blockArray[randomIndex][0] as ShapeType;
-    movingItem.top = 0;
-    movingItem.left = 3;
-    movingItem.direction = 0;
-    this.tempMovingItem = { ...movingItem };
-    this.renderBlocks();
   }
 
   checkMatch() {
@@ -157,7 +141,6 @@ export class Tetris {
       });
       if (matched) {
         child.remove();
-        console.log('prependNewLine');
         this.prependNewLine();
         this.score++;
         this.upgradeSpeed();
@@ -169,9 +152,20 @@ export class Tetris {
     this.generateNewBlock();
   }
 
+  generateNewBlock() {
+    clearInterval(this.downInterval);
+    this.downInterval = setInterval(() => {
+      this.moveBlock('top', 1);
+    }, this.duration);
+    const blockArray = Object.entries(BLOCKS);
+    const randomIndex = Math.floor(Math.random() * blockArray.length);
+    Object.assign(movingItem, { type: blockArray[randomIndex][0], top: 0, left: 3, direction: 0 });
+    this.tempMovingItem = { ...movingItem };
+    this.renderBlocks();
+  }
+
   upgradeSpeed() {
     this.duration <= this.minDuration ? (this.duration = this.minDuration) : (this.duration -= 100);
-    console.log(this.duration);
     clearInterval(this.downInterval);
   }
 
@@ -198,13 +192,5 @@ export class Tetris {
     this.downInterval = setInterval(() => {
       this.moveBlock('top', 1);
     }, 10);
-  }
-
-  showGameoverText() {
-    gameText.style.display = 'flex';
-  }
-
-  hideGameoverText() {
-    gameText.style.display = 'none';
   }
 }

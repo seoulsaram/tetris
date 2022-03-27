@@ -1,0 +1,8 @@
+const gameText = document.querySelector('.game-text');
+export function showGameoverText() {
+    gameText.style.display = 'flex';
+}
+export function hideGameoverText() {
+    gameText.style.display = 'none';
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic2NyZWVuLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vanMvc2NyZWVuLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE1BQU0sUUFBUSxHQUFHLFFBQVEsQ0FBQyxhQUFhLENBQUMsWUFBWSxDQUFtQixDQUFDO0FBRXhFLE1BQU0sVUFBVSxnQkFBZ0I7SUFDOUIsUUFBUSxDQUFDLEtBQUssQ0FBQyxPQUFPLEdBQUcsTUFBTSxDQUFDO0FBQ2xDLENBQUM7QUFFRCxNQUFNLFVBQVUsZ0JBQWdCO0lBQzlCLFFBQVEsQ0FBQyxLQUFLLENBQUMsT0FBTyxHQUFHLE1BQU0sQ0FBQztBQUNsQyxDQUFDIn0=
