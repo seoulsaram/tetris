@@ -1,4 +1,4 @@
-import BLOCKS from './blocks.js';
+import { BLOCKS } from './blocks';
 //DOM
 const playground = document.querySelector('.playground > ul');
 const gameText = document.querySelector('.game-text');
@@ -30,7 +30,7 @@ const movingItem = {
   left: 0,
 };
 
-init();
+// init();
 
 // function init() {
 //   tempMovingItem = { ...movingItem };
